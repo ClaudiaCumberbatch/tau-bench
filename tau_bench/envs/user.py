@@ -5,6 +5,7 @@ import enum
 from litellm import completion
 
 from typing import Optional, List, Dict, Any, Union
+from tau_bench.token_utils import truncate_messages
 
 
 class BaseUserSimulationEnv(abc.ABC):
@@ -44,6 +45,7 @@ class LLMUserSimulationEnv(BaseUserSimulationEnv):
         self.reset()
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
+        messages = truncate_messages(messages)
         res = completion(
             model=self.model, custom_llm_provider=self.provider, messages=messages
         )
@@ -115,6 +117,7 @@ User Response:
 <the user response (this will be parsed and sent to the agent)>"""
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
+        messages = truncate_messages(messages)
         res = completion(
             model=self.model, custom_llm_provider=self.provider, messages=messages
         )
@@ -161,6 +164,7 @@ class VerifyUserSimulationEnv(LLMUserSimulationEnv):
         self.reset()
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
+        messages = truncate_messages(messages)
         attempts = 0
         cur_message = None
         while attempts < self.max_attempts:
@@ -224,10 +228,11 @@ Your answer will be parsed, so do not include any other text than the classifica
 -----
 
 Classification:"""
+    verify_messages = truncate_messages([{"role": "user", "content": prompt}])
     res = completion(
         model=model,
         custom_llm_provider=provider,
-        messages=[{"role": "user", "content": prompt}],
+        messages=verify_messages,
     )
     return "true" in res.choices[0].message.content.lower()
 
@@ -258,10 +263,11 @@ Reflection:
 
 Response:
 <the response (this will be parsed and sent to the agent)>"""
+    reflect_messages = truncate_messages([{"role": "user", "content": prompt}])
     res = completion(
         model=model,
         custom_llm_provider=provider,
-        messages=[{"role": "user", "content": prompt}],
+        messages=reflect_messages,
     )
     _, response = res.choices[0].message.content.split("Response:")
     return response.strip()

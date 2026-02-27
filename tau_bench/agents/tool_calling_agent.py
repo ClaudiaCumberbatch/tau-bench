@@ -5,6 +5,7 @@ from litellm import completion
 from typing import List, Optional, Dict, Any
 
 from tau_bench.agents.base import Agent
+from tau_bench.token_utils import truncate_messages
 from tau_bench.envs.base import Env
 from tau_bench.types import SolveResult, Action, RESPOND_ACTION_NAME
 
@@ -37,6 +38,7 @@ class ToolCallingAgent(Agent):
             {"role": "user", "content": obs},
         ]
         for _ in range(max_num_steps):
+            messages = truncate_messages(messages, tools=self.tools_info)
             res = completion(
                 messages=messages,
                 model=self.model,

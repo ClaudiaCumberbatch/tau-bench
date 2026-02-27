@@ -25,6 +25,9 @@ class MockRetailDomainEnv(Env):
                 from tau_bench.envs.retail.tasks_train import TASKS_TRAIN as tasks
             case "dev":
                 from tau_bench.envs.retail.tasks_dev import TASKS_DEV as tasks
+            case "think":
+                from tau_bench.envs.retail.tasks_think import TASKS_THINK as tasks
+            
             case _:
                 raise ValueError(f"Unknown task split: {task_split}")
         super().__init__(

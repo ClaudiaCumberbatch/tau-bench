@@ -4,6 +4,7 @@ import json
 from litellm import completion
 
 from tau_bench.agents.base import Agent
+from tau_bench.token_utils import truncate_messages
 from tau_bench.envs.base import Env
 from tau_bench.types import (
     Action,
@@ -37,6 +38,7 @@ class ChatReActAgent(Agent):
     def generate_next_step(
         self, messages: List[Dict[str, Any]]
     ) -> Tuple[Dict[str, Any], Action, float]:
+        messages = truncate_messages(messages)
         res = completion(
             model=self.model,
             custom_llm_provider=self.provider,

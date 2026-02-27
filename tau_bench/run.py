@@ -22,12 +22,14 @@ def run(config: RunConfig) -> List[EnvRunResult]:
     assert config.model_provider in provider_list, "Invalid model provider"
     assert config.user_model_provider in provider_list, "Invalid user model provider"
     assert config.agent_strategy in ["tool-calling", "act", "react", "few-shot"], "Invalid agent strategy"
-    assert config.task_split in ["train", "test", "dev"], "Invalid task split"
+    assert config.task_split in ["train", "test", "dev", "think"], "Invalid task split"
     assert config.user_strategy in [item.value for item in UserStrategy], "Invalid user strategy"
 
     random.seed(config.seed)
     time_str = datetime.now().strftime("%m%d%H%M%S")
-    ckpt_path = f"{config.log_dir}/{config.agent_strategy}-{config.model.split('/')[-1]}-{config.temperature}_range_{config.start_index}-{config.end_index}_user-{config.user_model}-{config.user_strategy}_{time_str}.json"
+    safe_model_name = config.model.replace("/", "_")
+    safe_user_model_name = config.user_model.replace("/", "_")
+    ckpt_path = f"{config.log_dir}/{config.agent_strategy}-{safe_model_name}-{config.temperature}_range_{config.start_index}-{config.end_index}_user-{safe_user_model_name}-{config.user_strategy}_{time_str}.json"
     if not os.path.exists(config.log_dir):
         os.makedirs(config.log_dir)
 
